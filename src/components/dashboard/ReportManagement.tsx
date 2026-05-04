@@ -1,16 +1,25 @@
+import { useState } from 'react';
 import { useGetReportsQuery, useDismissReportMutation, useDeletePostMutation } from '@/store/api/dashboardApi';
 import { GlassCard } from './GlassCard';
-import { AlertTriangle, CheckCircle, Trash2, User, ExternalLink, Calendar } from 'lucide-react';
+import { AlertTriangle, CheckCircle, Trash2, User, ExternalLink, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function ReportManagement() {
-  const { data, isLoading } = useGetReportsQuery({ limit: 50 }, {
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
+  const { data, isLoading } = useGetReportsQuery({ 
+    limit,
+    skip: (page - 1) * limit
+  }, {
     pollingInterval: 10000,
   });
   const [dismissReport] = useDismissReportMutation();
   const [deletePost] = useDeletePostMutation();
 
   const reports = data?.reports || [];
+  const total = data?.total || 0;
+  const totalPages = Math.ceil(total / limit);
 
   return (
     <div className="space-y-6">
@@ -98,6 +107,30 @@ export function ReportManagement() {
           ))}
         </AnimatePresence>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-between items-center pt-4">
+          <div className="text-sm text-slate-400">
+            Showing <span className="text-slate-200">{(page - 1) * limit + 1}</span> to <span className="text-slate-200">{Math.min(page * limit, total)}</span> of <span className="text-slate-200">{total}</span>
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="p-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 text-slate-300" />
+            </button>
+            <button 
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="p-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <ChevronRight className="w-4 h-4 text-slate-300" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

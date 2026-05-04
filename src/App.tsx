@@ -8,11 +8,14 @@ import { ReportManagement } from "@/components/dashboard/ReportManagement"
 import { TeamManagement } from "@/components/dashboard/TeamManagement"
 import { SettingsManagement } from "@/components/dashboard/SettingsManagement"
 import { SystemHealth } from "@/components/dashboard/SystemHealth"
+import { ActivityLogs } from "@/components/dashboard/ActivityLogs"
+import { ReportGeneration } from "@/components/dashboard/ReportGeneration"
+import { AiAuditCenter } from "@/components/dashboard/AiAuditCenter"
 import Login from "@/components/Login"
-import { useGetStatsQuery, useSendBroadcastMutation } from "@/store/api/dashboardApi"
+import { useGetStatsQuery, useSendBroadcastMutation, useGetOnlineUsersQuery } from "@/store/api/dashboardApi"
 import { useAppSelector } from "@/store/hooks"
 import type { ViewType } from "@/components/layout/Sidebar"
-import { Users, Activity, MessageSquare, TrendingUp, Bell, AlertTriangle, ShieldCheck } from "lucide-react"
+import { Users, Activity, MessageSquare, TrendingUp, Bell, AlertTriangle, ShieldCheck, Wifi } from "lucide-react"
 
 export function App() {
   const { isAuthenticated } = useAppSelector((state) => state.auth)
@@ -21,7 +24,12 @@ export function App() {
   
   const { data, isLoading } = useGetStatsQuery(undefined, {
     pollingInterval: 5000,
-    skip: !isAuthenticated, // Don't fetch if not authenticated
+    skip: !isAuthenticated,
+  })
+
+  const { data: onlineData } = useGetOnlineUsersQuery(undefined, {
+    pollingInterval: 10000,
+    skip: !isAuthenticated,
   })
 
   if (!isAuthenticated) {
@@ -45,6 +53,12 @@ export function App() {
         return <SystemHealth />;
       case 'settings':
         return <SettingsManagement />;
+      case 'activity':
+        return <ActivityLogs />;
+      case 'reports-gen':
+        return <ReportGeneration />;
+      case 'ai-audit':
+        return <AiAuditCenter />;
       case 'dashboard':
       default:
         return (
@@ -81,7 +95,24 @@ export function App() {
             </header>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+              {/* Online Now */}
+              <GlassCard onClick={() => setActiveView('reports-gen')} className="cursor-pointer border border-emerald-500/10">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="p-2 bg-emerald-500/10 rounded-xl relative">
+                    <Wifi className="w-6 h-6 text-emerald-400" />
+                    <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                    </span>
+                  </div>
+                </div>
+                <h3 className="text-slate-400 text-sm font-medium mb-1">Online Now</h3>
+                <div className="text-3xl font-light text-emerald-400">
+                  {onlineData?.onlineNow ?? "..."}
+                </div>
+              </GlassCard>
+
               <GlassCard onClick={() => setActiveView('users')} className="cursor-pointer">
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-2 bg-cyan-500/10 rounded-xl">

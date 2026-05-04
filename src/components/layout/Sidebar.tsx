@@ -1,17 +1,20 @@
 import { motion } from 'framer-motion';
-import { LayoutDashboard, Users, MessageSquare, Settings, Activity, Hexagon, Server, LogOut, AlertTriangle, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Users, MessageSquare, Settings, Activity, Hexagon, Server, LogOut, AlertTriangle, ShieldCheck, ScrollText, FileBarChart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAppDispatch } from '@/store/hooks';
 import { logout } from '@/store/slices/authSlice';
 
-export type ViewType = 'dashboard' | 'users' | 'posts' | 'reports' | 'team' | 'settings' | 'analytics' | 'health';
+export type ViewType = 'dashboard' | 'users' | 'posts' | 'ai-audit' | 'reports' | 'team' | 'settings' | 'analytics' | 'health' | 'activity' | 'reports-gen';
 
 const navItems = [
   { id: 'dashboard' as ViewType, icon: LayoutDashboard, label: 'Dashboard' },
   { id: 'analytics' as ViewType, icon: Activity, label: 'Analytics' },
   { id: 'users' as ViewType, icon: Users, label: 'Users' },
   { id: 'posts' as ViewType, icon: MessageSquare, label: 'Posts' },
+  { id: 'ai-audit' as ViewType, icon: ShieldCheck, label: 'AI Audit Center' },
   { id: 'reports' as ViewType, icon: AlertTriangle, label: 'Reports' },
+  { id: 'activity' as ViewType, icon: ScrollText, label: 'Activity Logs' },
+  { id: 'reports-gen' as ViewType, icon: FileBarChart, label: 'Reports & Online' },
   { id: 'team' as ViewType, icon: ShieldCheck, label: 'Team' },
   { id: 'health' as ViewType, icon: Server, label: 'Health' },
   { id: 'settings' as ViewType, icon: Settings, label: 'Settings' },

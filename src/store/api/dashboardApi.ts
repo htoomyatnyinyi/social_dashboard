@@ -1,144 +1,197 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 
 export const dashboardApi = createApi({
-  reducerPath: 'dashboardApi',
+  reducerPath: "dashboardApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: 'http://localhost:8080',
-    // baseUrl: import.meta.env.VITE_API_URL,
+    // baseUrl: 'http://localhost:8080',
+    baseUrl: import.meta.env.VITE_API_URL,
     prepareHeaders: (headers) => {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token")
       if (token) {
-        headers.set('authorization', `Bearer ${token}`);
+        headers.set("authorization", `Bearer ${token}`)
       }
-      return headers;
+      return headers
     },
   }),
-  tagTypes: ['Stats', 'Users', 'Posts', 'Reports', 'Team', 'Settings'],
+  tagTypes: ["Stats", "Users", "Posts", "Reports", "Team", "Settings", "AuditLogs"],
   endpoints: (builder) => ({
     getAnalytics: builder.query<any, void>({
-      query: () => '/admin/graph',
+      query: () => "/admin/graph",
       transformResponse: (response: any) => response.data,
     }),
     getStats: builder.query<any, void>({
-      query: () => '/admin/stats',
+      query: () => "/admin/stats",
       transformResponse: (response: any) => response.data,
-      providesTags: ['Stats'],
+      providesTags: ["Stats"],
     }),
-    getUsers: builder.query<any, { limit?: number; skip?: number; search?: string }>({
+    getAnalyticsOverview: builder.query<any, void>({
+      query: () => "/admin/analytics/overview",
+      transformResponse: (response: any) => response.data,
+    }),
+    getUsers: builder.query<
+      any,
+      { limit?: number; skip?: number; search?: string }
+    >({
       query: (params) => ({
-        url: '/admin/users',
+        url: "/admin/users",
         params,
       }),
       transformResponse: (response: any) => response.data,
-      providesTags: ['Users'],
+      providesTags: ["Users"],
     }),
     getUserDetails: builder.query<any, string>({
       query: (id) => `/admin/users/${id}`,
       transformResponse: (response: any) => response.data,
-      providesTags: (_result, _error, id) => [{ type: 'Users', id }],
+      providesTags: (_result, _error, id) => [{ type: "Users", id }],
     }),
-    getPosts: builder.query<any, { limit?: number; skip?: number; search?: string; type?: 'all' | 'posts' | 'replies' }>({
+    getPosts: builder.query<
+      any,
+      {
+        limit?: number
+        skip?: number
+        search?: string
+        type?: "all" | "posts" | "replies"
+      }
+    >({
       query: (params) => ({
-        url: '/admin/posts',
+        url: "/admin/posts",
         params,
       }),
       transformResponse: (response: any) => response.data,
-      providesTags: ['Posts'],
+      providesTags: ["Posts"],
     }),
     deleteUser: builder.mutation<any, string>({
       query: (id) => ({
         url: `/admin/users/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Users', 'Stats'],
+      invalidatesTags: ["Users", "Stats"],
     }),
     updateUser: builder.mutation<any, { id: string; data: any }>({
       query: ({ id, data }) => ({
         url: `/admin/users/${id}`,
-        method: 'PATCH',
+        method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ['Users'],
+      invalidatesTags: ["Users"],
     }),
     deletePost: builder.mutation<any, string>({
       query: (id) => ({
         url: `/admin/posts/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Posts', 'Stats'],
+      invalidatesTags: ["Posts", "Stats"],
     }),
     getHealth: builder.query<any, void>({
-      query: () => '/admin/health',
+      query: () => "/admin/health",
       transformResponse: (response: any) => response.data,
       // Polling for real-time-ish feel
     }),
     getReports: builder.query<any, { limit?: number; skip?: number }>({
       query: (params) => ({
-        url: '/admin/reports',
+        url: "/admin/reports",
         params,
       }),
       transformResponse: (response: any) => response.data,
-      providesTags: ['Reports'],
+      providesTags: ["Reports"],
     }),
     getTeam: builder.query<any, void>({
-      query: () => '/admin/team',
+      query: () => "/admin/team",
       transformResponse: (response: any) => response.data,
-      providesTags: ['Team'],
+      providesTags: ["Team"],
     }),
     addTeamMember: builder.mutation<any, any>({
       query: (data) => ({
-        url: '/admin/team',
-        method: 'POST',
+        url: "/admin/team",
+        method: "POST",
         body: data,
       }),
-      invalidatesTags: ['Team'],
+      invalidatesTags: ["Team"],
     }),
     removeTeamMember: builder.mutation<any, string>({
       query: (id) => ({
         url: `/admin/team/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Team'],
+      invalidatesTags: ["Team"],
     }),
     dismissReport: builder.mutation<any, string>({
       query: (id) => ({
         url: `/admin/reports/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['Reports'],
+      invalidatesTags: ["Reports"],
     }),
     getSettings: builder.query<any, void>({
-      query: () => '/admin/settings',
+      query: () => "/admin/settings",
       transformResponse: (response: any) => response.data,
-      providesTags: ['Settings'],
+      providesTags: ["Settings"],
     }),
     updateSettings: builder.mutation<any, any>({
       query: (data) => ({
-        url: '/admin/settings',
-        method: 'PATCH',
+        url: "/admin/settings",
+        method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ['Settings'],
+      invalidatesTags: ["Settings"],
     }),
-    sendBroadcast: builder.mutation<any, { content: string; link?: string; type?: string }>({
+    sendBroadcast: builder.mutation<
+      any,
+      { content: string; link?: string; type?: string }
+    >({
       query: (data) => ({
-        url: '/admin/broadcast',
-        method: 'POST',
+        url: "/admin/broadcast",
+        method: "POST",
         body: data,
       }),
     }),
     login: builder.mutation<any, any>({
       query: (credentials) => ({
-        url: '/admin/signin',
-        method: 'POST',
+        url: "/admin/signin",
+        method: "POST",
         body: credentials,
       }),
     }),
+    // ── Online Users ──
+    getOnlineUsers: builder.query<any, void>({
+      query: () => "/admin/online",
+      transformResponse: (response: any) => response.data,
+    }),
+    // ── Audit Logs ──
+    getAuditLogs: builder.query<
+      any,
+      { limit?: number; skip?: number; action?: string }
+    >({
+      query: (params) => ({
+        url: "/admin/audit-logs",
+        params,
+      }),
+      transformResponse: (response: any) => response.data,
+      providesTags: ["AuditLogs"],
+    }),
+    // ── Report Generation ──
+    getReport: builder.query<any, { period?: string }>({
+      query: (params) => ({
+        url: "/admin/report/generate",
+        params,
+      }),
+      transformResponse: (response: any) => response.data,
+    }),
+    // ── AI Audit ──
+    getAiAudit: builder.query<any, { limit?: number; skip?: number }>({
+      query: (params) => ({
+        url: "/admin/ai-audit",
+        params,
+      }),
+      transformResponse: (response: any) => response.data,
+      providesTags: ["Posts"],
+    }),
   }),
-});
+})
 
 export const {
   useGetAnalyticsQuery,
+  useGetAnalyticsOverviewQuery,
   useGetStatsQuery,
   useGetUsersQuery,
   useGetUserDetailsQuery,
@@ -156,4 +209,8 @@ export const {
   useUpdateSettingsMutation,
   useSendBroadcastMutation,
   useLoginMutation,
-} = dashboardApi;
+  useGetOnlineUsersQuery,
+  useGetAuditLogsQuery,
+  useGetReportQuery,
+  useGetAiAuditQuery,
+} = dashboardApi
